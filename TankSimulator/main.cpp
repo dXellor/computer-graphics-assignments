@@ -5,11 +5,13 @@
 
 #include <GL/glew.h>   
 #include <GLFW/glfw3.h>
-#include "main.h"
+
+//Custom
+#include "starting_vertices.h"
+#include "drawing.h"
 
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
 
 int main(void)
 {
@@ -24,15 +26,10 @@ int main(void)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    //Uniforms 
-    PositionVector2D movementVec;
-    movementVec.x = 0.0;
-    movementVec.y = 0.0;
-
     GLFWwindow* window;
     unsigned int wWidth = 1280;
     unsigned int wHeight = 720;
-    const char wTitle[] = "Wow, this is epic";
+    const char wTitle[] = "Tank simulator - RA32-2020";
     window = glfwCreateWindow(wWidth, wHeight, wTitle, NULL, NULL);
     if (window == NULL)
     {
@@ -48,66 +45,56 @@ int main(void)
         return 1;
     }
 
-    glfwSetWindowUserPointer(window, &movementVec);
-    glfwSetKeyCallback(window, keyCallback);
+    // VAO list
+    /*
+        [0] - amunition status
+        [1] - fire ready LED
+        [2] - voltmeter
+    */
 
-    float vertex_positions[] = {
-        -0.25, -0.25,
-         0.25, -0.25,
-         0.0, 0.0,
-         0.25, 0.25,
-         -0.25, 0.25
-    };
+    unsigned int VAO[2];
+    glGenVertexArrays(2, VAO);
+    unsigned int VBO[2];
+    glGenBuffers(2, VBO);
 
-    unsigned int indices[] = {
-        0, 1, 2,
-        2, 3, 4
-    };
-
-    unsigned int VAO;
-    unsigned int VBO;
-
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
+    //Ammunition
     int stride = 2 * sizeof(float);
-    glGenBuffers(1, &VBO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_positions), vertex_positions, GL_STATIC_DRAW);
-
+    glBindVertexArray(VAO[0]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ammunition_status_vert), ammunition_status_vert, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
-    /*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void *)(2 * sizeof(float)));
-    glEnableVertexAttribArray(1);*/
+    
+    //Ammunition border
+    glBindVertexArray(VAO[1]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ammunition_status_border_vert), ammunition_status_border_vert, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
-    unsigned int index_buffer;
-    glGenBuffers(1, &index_buffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
+    //Detach
     glBindVertexArray(0);
 
-    unsigned int basicShader = createShader("basic.vs", "basic.fs");
+    //Shaders
+    unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
+    unsigned int borderShader = createShader("basic.vert", "border.frag");
 
-    //kretanje...
-    unsigned int u_movementPosLoc = glGetUniformLocation(basicShader, "u_movementPos");
+    //Uniforms
+    unsigned int u_ammunitionAlphaLoc = glGetUniformLocation(ammunitionShader, "u_alpha");
 
+    //Rendering loop
     while (!glfwWindowShouldClose(window))
     {
-        glClearColor(0.7, 0.6, 0.5, 1.0);
+        glClearColor(0.1, 0.3, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
     
-        glBindVertexArray(VAO);
-        glUseProgram(basicShader);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        glUniform2f(u_movementPosLoc, movementVec.x, movementVec.y);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        drawAmmunitionStatus(VAO, ammunitionShader, borderShader, u_ammunitionAlphaLoc);
         
         glBindVertexArray(0);
         glUseProgram(0);
 
         glfwSwapBuffers(window);
-
         glfwPollEvents();
     }
 
@@ -188,25 +175,4 @@ unsigned int createShader(const char* vsSource, const char* fsSource)
     glDeleteShader(fragmentShader);
 
     return program;
-}
-
-void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) 
-{
-    PositionVector2D* movementVec = (PositionVector2D *) glfwGetWindowUserPointer(window);
-
-    if (key == GLFW_KEY_UP && action != GLFW_RELEASE) {
-        movementVec->y += 0.01;
-    }
-
-    if (key == GLFW_KEY_DOWN && action != GLFW_RELEASE) {
-        movementVec->y -= 0.01;
-    }
-
-    if (key == GLFW_KEY_LEFT && action != GLFW_RELEASE) {
-        movementVec->x -= 0.01;
-    }
-
-    if (key == GLFW_KEY_RIGHT && action != GLFW_RELEASE) {
-        movementVec->x += 0.01;
-    }
 }

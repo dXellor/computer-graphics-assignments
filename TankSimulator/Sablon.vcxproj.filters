@@ -21,16 +21,25 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="basic.vs">
+    <None Include="basic.vert">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="basic.fs">
+    <None Include="basic.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="border.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="ammunition.frag">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="starting_vertices.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="drawing.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
