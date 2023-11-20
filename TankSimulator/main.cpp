@@ -12,6 +12,7 @@
 
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
+void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn);
 
 int main(void)
 {
@@ -124,19 +125,24 @@ int main(void)
 
     //Uniforms
     unsigned int u_colorLocAmm = glGetUniformLocation(ammunitionShader, "u_col");
-
     unsigned int u_colorLoc = glGetUniformLocation(basicShader, "u_col");
     unsigned int u_basicMoveLoc = glGetUniformLocation(basicShader, "u_move");
+
+    //Variables
+    int bulletCount = 7;
+    bool fireLedOn = true;
 
     //Rendering loop
     while (!glfwWindowShouldClose(window))
     {
+        control(window, &bulletCount, &fireLedOn);
+
         glClearColor(0.1, 0.3, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
     
         glViewport(0, 0, wWidth / 2, wHeight);
-        drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc);
-        drawFireLED(VAO, basicShader, u_basicMoveLoc, u_colorLoc);
+        drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc, bulletCount);
+        drawFireLED(VAO, basicShader, u_basicMoveLoc, u_colorLoc, fireLedOn);
 
         glViewport(wWidth / 2 + 1, 0, wWidth / 2, wHeight);
         drawVoltmeter(VAO, basicShader, sizeof(voltmeter_vert), u_basicMoveLoc, u_colorLoc);
@@ -225,4 +231,15 @@ unsigned int createShader(const char* vsSource, const char* fsSource)
     glDeleteShader(fragmentShader);
 
     return program;
+}
+
+void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, GL_TRUE);
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        (*(bulletCount))--;
+        *(fireLedOn) = false;
+    }
 }

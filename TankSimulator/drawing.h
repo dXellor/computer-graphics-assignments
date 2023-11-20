@@ -5,8 +5,7 @@
 #define AMMUNITION_SIZE 7
 #define CAGE_SIZE 5
 
-void drawAmmunitionStatus(unsigned int* VAO, unsigned int ammunitionShader, unsigned int basicShader, unsigned int alphaUniform, unsigned int u_Loc, unsigned int u_Col) {
-    int bulletsCount = 2;
+void drawAmmunitionStatus(unsigned int* VAO, unsigned int ammunitionShader, unsigned int basicShader, unsigned int alphaUniform, unsigned int u_Loc, unsigned int u_Col, int bulletsCount) {
     glUseProgram(ammunitionShader);
     glBindVertexArray(VAO[0]);
     for (int i = 0; i < AMMUNITION_SIZE; i++) {
@@ -33,10 +32,15 @@ void drawAmmunitionStatus(unsigned int* VAO, unsigned int ammunitionShader, unsi
     glLineWidth(1);
 }
 
-void drawFireLED(unsigned int* VAO, unsigned int shader, unsigned int u_Loc, unsigned int colorUniform) {
+void drawFireLED(unsigned int* VAO, unsigned int shader, unsigned int u_Loc, unsigned int colorUniform, bool fire_led_on) {
     glUseProgram(shader);
     glBindVertexArray(VAO[2]);
-    glUniform4f(colorUniform, 0.25, 0.03, 0.0, 1.0);
+    if (fire_led_on) {
+        glUniform4f(colorUniform, 0.9, 0.1, 0.0, 1.0);
+    }
+    else {
+        glUniform4f(colorUniform, 0.25, 0.03, 0.0, 1.0);
+    }
     glUniform2f(u_Loc, 0.0, 0.0);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
