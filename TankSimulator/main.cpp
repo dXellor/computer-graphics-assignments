@@ -47,15 +47,15 @@ int main(void)
 
     // VAO list
     /*
-        [0] - amunition status
-        [1] - fire ready LED
-        [2] - voltmeter
+        [0] - ammunition status
+        [1] - ammunition border
+        [2] - fire LED
     */
 
-    unsigned int VAO[2];
-    glGenVertexArrays(2, VAO);
-    unsigned int VBO[2];
-    glGenBuffers(2, VBO);
+    unsigned int VAO[4];
+    glGenVertexArrays(4, VAO);
+    unsigned int VBO[4];
+    glGenBuffers(4, VBO);
 
     //Ammunition
     int stride = 2 * sizeof(float);
@@ -72,6 +72,19 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
+    //Fire LED
+    glBindVertexArray(VAO[2]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(fire_led_vert), fire_led_vert, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
+
+    //Fire LED Cage
+    glBindVertexArray(VAO[3]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(fire_led_cage), fire_led_cage, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
     //Detach
     glBindVertexArray(0);
@@ -79,9 +92,11 @@ int main(void)
     //Shaders
     unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
     unsigned int borderShader = createShader("basic.vert", "border.frag");
+    unsigned int colorChangingShader = createShader("color_changing.vert", "basic.frag");
 
     //Uniforms
     unsigned int u_ammunitionAlphaLoc = glGetUniformLocation(ammunitionShader, "u_alpha");
+    unsigned int u_colorLoc = glGetUniformLocation(colorChangingShader, "u_col");
 
     //Rendering loop
     while (!glfwWindowShouldClose(window))
@@ -89,8 +104,10 @@ int main(void)
         glClearColor(0.1, 0.3, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
     
+        glViewport(0, 0, wWidth / 2, wHeight);
         drawAmmunitionStatus(VAO, ammunitionShader, borderShader, u_ammunitionAlphaLoc);
-        
+        drawFireLED(VAO, colorChangingShader, borderShader, u_colorLoc);
+
         glBindVertexArray(0);
         glUseProgram(0);
 

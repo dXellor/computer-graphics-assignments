@@ -33,6 +33,9 @@
     <None Include="ammunition.frag">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="color_changing.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="starting_vertices.h">

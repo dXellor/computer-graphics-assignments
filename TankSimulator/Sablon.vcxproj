@@ -147,6 +147,7 @@
     <None Include="basic.frag" />
     <None Include="basic.vert" />
     <None Include="border.frag" />
+    <None Include="color_changing.vert" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
