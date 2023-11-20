@@ -110,8 +110,9 @@ float fire_led_cage[40] = {
 	0.25, 0.5,
 };
 
-float voltmeter_line_vert[2] = {
-	-0.59, 0.62
+float voltmeter_line_vert[4] = {
+	0.0, 0.0,
+	-0.65, 0.02,
 };
 
 

@@ -55,10 +55,10 @@ int main(void)
         [5] - voltmeter line
     */
 
-    unsigned int VAO[5];
-    glGenVertexArrays(5, VAO);
-    unsigned int VBO[5];
-    glGenBuffers(5, VBO);
+    unsigned int VAO[10];
+    glGenVertexArrays(10, VAO);
+    unsigned int VBO[10];
+    glGenBuffers(10, VBO);
 
     //Ammunition
     int stride = 2 * sizeof(float);
@@ -109,6 +109,11 @@ int main(void)
     glEnableVertexAttribArray(0);
 
     //Voltmeter line
+    glBindVertexArray(VAO[5]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[5]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(voltmeter_line_vert), voltmeter_line_vert, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
     //Detach
     glBindVertexArray(0);

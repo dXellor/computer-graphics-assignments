@@ -55,4 +55,11 @@ void drawVoltmeter(unsigned int* VAO, unsigned int shader, int arraySize, unsign
     glUniform2f(u_Loc, 0.0, -0.2);
     glBindVertexArray(VAO[4]);
     glDrawArrays(GL_TRIANGLE_FAN, 0, arraySize / (2 * sizeof(float)));
+
+    glUniform2f(u_Loc, 0.0, -0.15);
+    glUniform4f(u_colorLoc, 1.0, 0.0, 0.0, 1.0);
+    glBindVertexArray(VAO[5]);
+    glLineWidth(5);
+    glDrawArrays(GL_LINES, 0, 2);
+    glLineWidth(1);
 }
