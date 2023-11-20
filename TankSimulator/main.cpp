@@ -45,17 +45,20 @@ int main(void)
         return 1;
     }
 
-    // VAO list
     /*
+        VAO list
         [0] - ammunition status
         [1] - ammunition border
         [2] - fire LED
+        [3] - fire LED cage
+        [4] - voltmeter
+        [5] - voltmeter border
     */
 
-    unsigned int VAO[4];
-    glGenVertexArrays(4, VAO);
-    unsigned int VBO[4];
-    glGenBuffers(4, VBO);
+    unsigned int VAO[5];
+    glGenVertexArrays(5, VAO);
+    unsigned int VBO[5];
+    glGenBuffers(5, VBO);
 
     //Ammunition
     int stride = 2 * sizeof(float);
@@ -86,17 +89,38 @@ int main(void)
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
 
+    //Voltmeter
+    float voltmeter_vert[CRES * 2 + 4];
+    float r = 0.7;
+
+    voltmeter_vert[0] = 0;
+    voltmeter_vert[1] = 0;
+    int i;
+    for (i = 0; i <= CRES; i++)
+    {
+
+        voltmeter_vert[2 + 2 * i] = r * cos((3.141592 / 180) * (i * 180 / CRES));
+        voltmeter_vert[2 + 2 * i + 1] = r * sin((3.141592 / 180) * (i * 180 / CRES));
+    }
+    glBindVertexArray(VAO[4]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(voltmeter_vert), voltmeter_vert, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
     //Detach
     glBindVertexArray(0);
 
     //Shaders
     unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
     unsigned int borderShader = createShader("basic.vert", "border.frag");
+    unsigned int basicShader = createShader("basic.vert", "border.frag");
     unsigned int colorChangingShader = createShader("color_changing.vert", "basic.frag");
 
     //Uniforms
     unsigned int u_ammunitionAlphaLoc = glGetUniformLocation(ammunitionShader, "u_alpha");
     unsigned int u_colorLoc = glGetUniformLocation(colorChangingShader, "u_col");
+    unsigned int u_basicMoveLoc = glGetUniformLocation(basicShader, "u_move");
 
     //Rendering loop
     while (!glfwWindowShouldClose(window))
@@ -107,6 +131,9 @@ int main(void)
         glViewport(0, 0, wWidth / 2, wHeight);
         drawAmmunitionStatus(VAO, ammunitionShader, borderShader, u_ammunitionAlphaLoc);
         drawFireLED(VAO, colorChangingShader, borderShader, u_colorLoc);
+
+        glViewport(wWidth / 2 + 1, 0, wWidth / 2, wHeight);
+        drawVoltmeter(VAO, basicShader, sizeof(voltmeter_vert), u_basicMoveLoc);
 
         glBindVertexArray(0);
         glUseProgram(0);

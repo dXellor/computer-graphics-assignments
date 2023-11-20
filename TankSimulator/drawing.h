@@ -45,3 +45,10 @@ void drawFireLED(unsigned int* VAO, unsigned int shader, unsigned int borderShad
     }
     glLineWidth(1);
 }
+
+void drawVoltmeter(unsigned int* VAO, unsigned int shader, int arraySize, unsigned int u_Loc) {
+    glUseProgram(shader);
+    glUniform2f(u_Loc, 0.0, -0.2);
+    glBindVertexArray(VAO[4]);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, arraySize / (2 * sizeof(float)));
+}

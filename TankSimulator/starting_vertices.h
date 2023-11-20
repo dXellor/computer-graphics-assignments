@@ -1,5 +1,6 @@
 #pragma once
 #define CRES 30
+#include <math.h>
 
 float ammunition_status_vert[56] = {
 	-0.5, 0.15,
