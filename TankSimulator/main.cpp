@@ -52,7 +52,7 @@ int main(void)
         [2] - fire LED
         [3] - fire LED cage
         [4] - voltmeter
-        [5] - voltmeter border
+        [5] - voltmeter line
     */
 
     unsigned int VAO[5];
@@ -108,18 +108,19 @@ int main(void)
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
+    //Voltmeter line
+
     //Detach
     glBindVertexArray(0);
 
     //Shaders
     unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
-    unsigned int borderShader = createShader("basic.vert", "border.frag");
-    unsigned int basicShader = createShader("basic.vert", "border.frag");
-    unsigned int colorChangingShader = createShader("color_changing.vert", "basic.frag");
+    unsigned int basicShader = createShader("basic.vert", "basic.frag");
 
     //Uniforms
-    unsigned int u_ammunitionAlphaLoc = glGetUniformLocation(ammunitionShader, "u_alpha");
-    unsigned int u_colorLoc = glGetUniformLocation(colorChangingShader, "u_col");
+    unsigned int u_colorLocAmm = glGetUniformLocation(ammunitionShader, "u_col");
+
+    unsigned int u_colorLoc = glGetUniformLocation(basicShader, "u_col");
     unsigned int u_basicMoveLoc = glGetUniformLocation(basicShader, "u_move");
 
     //Rendering loop
@@ -129,11 +130,11 @@ int main(void)
         glClear(GL_COLOR_BUFFER_BIT);
     
         glViewport(0, 0, wWidth / 2, wHeight);
-        drawAmmunitionStatus(VAO, ammunitionShader, borderShader, u_ammunitionAlphaLoc);
-        drawFireLED(VAO, colorChangingShader, borderShader, u_colorLoc);
+        drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc);
+        drawFireLED(VAO, basicShader, u_basicMoveLoc, u_colorLoc);
 
         glViewport(wWidth / 2 + 1, 0, wWidth / 2, wHeight);
-        drawVoltmeter(VAO, basicShader, sizeof(voltmeter_vert), u_basicMoveLoc);
+        drawVoltmeter(VAO, basicShader, sizeof(voltmeter_vert), u_basicMoveLoc, u_colorLoc);
 
         glBindVertexArray(0);
         glUseProgram(0);

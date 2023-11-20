@@ -27,13 +27,10 @@
     <None Include="basic.frag">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="border.frag">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="ammunition.frag">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="color_changing.vert">
+    <None Include="voltmeter_line.frag">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
