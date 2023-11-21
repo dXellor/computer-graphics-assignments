@@ -41,6 +41,9 @@
     <None Include="basic_texture.vert">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="voltmeter_line.vert">
+      <Filter>Shaders</Filter>
+    </None>
     <None Include="voltmeter_line.frag">
       <Filter>Shaders</Filter>
     </None>

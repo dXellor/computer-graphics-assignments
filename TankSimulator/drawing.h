@@ -2,8 +2,6 @@
 #include <GL/glew.h>   
 #include <GLFW/glfw3.h>
 #include "starting_vertices.h"
-#define AMMUNITION_SIZE 7
-#define CAGE_SIZE 5
 
 void drawPanelSurfaceBackground(unsigned int* VAO, unsigned int basicTextureShader, unsigned int u_texLoc, unsigned texture, unsigned int u_texMoveLoc, float x, float y) {
     glBindVertexArray(VAO[6]);
@@ -64,17 +62,39 @@ void drawFireLED(unsigned int* VAO, unsigned int shader, unsigned int u_Loc, uns
     glLineWidth(1);
 }
 
-void drawVoltmeter(unsigned int* VAO, unsigned int shader, int arraySize, unsigned int u_Loc, unsigned int u_colorLoc) {
+void drawVoltmeter(unsigned int* VAO, unsigned int shader, unsigned int lineShader, int arraySize, unsigned int u_Loc, unsigned int u_colorLoc, unsigned int u_voltmeterLineLoc, bool hydraulicsOn, float voltage) {
     glUseProgram(shader);
     glUniform4f(u_colorLoc, 0.0, 0.0, 0.0, 1.0);
     glUniform2f(u_Loc, 0.0, -0.2);
     glBindVertexArray(VAO[4]);
     glDrawArrays(GL_TRIANGLE_FAN, 0, arraySize / (2 * sizeof(float)));
 
-    glUniform2f(u_Loc, 0.0, -0.15);
-    glUniform4f(u_colorLoc, 1.0, 0.0, 0.0, 1.0);
+    //Calculate line position by voltage (0 volts -> arrow points left)
+    float noise = 0.0;
+    if (voltage > 0 && voltage < MAX_VOLTAGE) {
+        noise = sin(100 * glfwGetTime())/10;
+    }
+
+    float line_x= 0.6 * cos((3.141592 / 180) * ((MAX_VOLTAGE - voltage + noise) * 180 / CRES));
+    float line_y= 0.6 * sin((3.141592 / 180) * ((MAX_VOLTAGE - voltage + noise) * 180 / CRES));
+    
+    glUseProgram(lineShader);
+    glUniform2f(u_voltmeterLineLoc, line_x, line_y);
     glBindVertexArray(VAO[5]);
     glLineWidth(5);
     glDrawArrays(GL_LINES, 0, 2);
     glLineWidth(1);
+}
+
+void drawTargets(unsigned int* VAO, unsigned int shader, int arraySize, unsigned int u_Loc, unsigned int u_colorLoc, float x, float y) {
+    glUseProgram(shader);
+    glUniform4f(u_colorLoc, 1.0, 0.0, 0.0, 1.0);
+    glUniform2f(u_Loc, x, y);
+    glBindVertexArray(VAO[7]);
+    glEnable(GL_PROGRAM_POINT_SIZE);
+    glPointSize(10);
+    for (int i = 3; i < TARGETS_NUM; i++) {
+        glDrawArrays(GL_POINTS, i * 2, 1);
+    }
+    glPointSize(1);
 }

@@ -1,5 +1,9 @@
 #pragma once
 #define CRES 30
+#define TARGETS_NUM 3
+#define AMMUNITION_SIZE 6
+#define CAGE_SIZE 5
+#define MAX_VOLTAGE 30
 #include <math.h>
 
 float panel_surface_background_vert[16] =
@@ -119,7 +123,7 @@ float fire_led_cage[40] = {
 };
 
 float voltmeter_line_vert[4] = {
-	0.0, 0.0,
+	0.0, -0.15,
 	-0.65, 0.02,
 };
 

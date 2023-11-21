@@ -150,6 +150,7 @@
     <None Include="basic_texture.vert" />
     <None Include="packages.config" />
     <None Include="voltmeter_line.frag" />
+    <None Include="voltmeter_line.vert" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="drawing.h" />
