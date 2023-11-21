@@ -2,6 +2,14 @@
 #define CRES 30
 #include <math.h>
 
+float panel_surface_background_vert[16] =
+{   //X    Y      S    T 
+	-1.0, -1.0,  0.0, 0.0,
+	1.0, -1.0,   1.0, 0.0,
+   -1.0, 1.0,    0.0, 1.0,
+	1.0, 1.0,    1.0, 1.0
+};
+
 float ammunition_status_vert[56] = {
 	-0.5, 0.15,
 	0.5, 0.15,

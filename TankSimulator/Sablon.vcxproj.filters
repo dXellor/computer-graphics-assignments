@@ -13,6 +13,11 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{7165aa59-04ef-4698-9c4b-452871124178}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -21,17 +26,23 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="basic.vert">
-      <Filter>Source Files</Filter>
+    <None Include="ammunition.frag">
+      <Filter>Shaders</Filter>
     </None>
     <None Include="basic.frag">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
     </None>
-    <None Include="ammunition.frag">
-      <Filter>Source Files</Filter>
+    <None Include="basic.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="basic_texture.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="basic_texture.vert">
+      <Filter>Shaders</Filter>
     </None>
     <None Include="voltmeter_line.frag">
-      <Filter>Source Files</Filter>
+      <Filter>Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -39,6 +50,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="drawing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -146,12 +146,15 @@
     <None Include="ammunition.frag" />
     <None Include="basic.frag" />
     <None Include="basic.vert" />
+    <None Include="basic_texture.frag" />
+    <None Include="basic_texture.vert" />
     <None Include="packages.config" />
     <None Include="voltmeter_line.frag" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="drawing.h" />
     <ClInclude Include="starting_vertices.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,12 +6,16 @@
 #include <GL/glew.h>   
 #include <GLFW/glfw3.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
 //Custom
 #include "starting_vertices.h"
 #include "drawing.h"
 
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
+static unsigned loadImageToTexture(const char* filePath);
 void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn);
 
 int main(void)
@@ -54,6 +58,7 @@ int main(void)
         [3] - fire LED cage
         [4] - voltmeter
         [5] - voltmeter line
+        [6] - panel surface background
     */
 
     unsigned int VAO[10];
@@ -61,8 +66,18 @@ int main(void)
     unsigned int VBO[10];
     glGenBuffers(10, VBO);
 
+    //Panel surface background
+    int stride = 4 * sizeof(float);
+    glBindVertexArray(VAO[6]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[6]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(panel_surface_background_vert), panel_surface_background_vert, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
+
     //Ammunition
-    int stride = 2 * sizeof(float);
+    stride = 2 * sizeof(float);
     glBindVertexArray(VAO[0]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(ammunition_status_vert), ammunition_status_vert, GL_STATIC_DRAW);
@@ -119,14 +134,28 @@ int main(void)
     //Detach
     glBindVertexArray(0);
 
+    //Textures
+    unsigned metalSurfaceTexture = loadImageToTexture("textures/internal-board-surface.jpg");
+    glBindTexture(GL_TEXTURE_2D, metalSurfaceTexture); 
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     //Shaders
     unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
     unsigned int basicShader = createShader("basic.vert", "basic.frag");
+    unsigned int basicTextureShader = createShader("basic_texture.vert", "basic_texture.frag");
 
     //Uniforms
     unsigned int u_colorLocAmm = glGetUniformLocation(ammunitionShader, "u_col");
     unsigned int u_colorLoc = glGetUniformLocation(basicShader, "u_col");
     unsigned int u_basicMoveLoc = glGetUniformLocation(basicShader, "u_move");
+    unsigned u_TexLoc = glGetUniformLocation(basicTextureShader, "uTex");
+    glUniform1i(u_TexLoc, 0);
+
 
     //Variables
     int bulletCount = 7;
@@ -139,6 +168,9 @@ int main(void)
 
         glClearColor(0.1, 0.3, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        glViewport(0, 0, wWidth, wHeight);
+        drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, metalSurfaceTexture);
     
         glViewport(0, 0, wWidth / 2, wHeight);
         drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc, bulletCount);
@@ -154,8 +186,12 @@ int main(void)
         glfwPollEvents();
     }
 
-    //Oslobadjanje buffera
+    //glDeleteTextures(1, &checkerTexture);
+    glDeleteBuffers(10, VBO);
+    glDeleteVertexArrays(10, VAO);
 
+    glDeleteProgram(basicShader);
+    glDeleteProgram(ammunitionShader);
     glfwTerminate();
     return 0;
 }
@@ -231,6 +267,40 @@ unsigned int createShader(const char* vsSource, const char* fsSource)
     glDeleteShader(fragmentShader);
 
     return program;
+}
+
+static unsigned loadImageToTexture(const char* filePath) {
+    int TextureWidth;
+    int TextureHeight;
+    int TextureChannels;
+    unsigned char* ImageData = stbi_load(filePath, &TextureWidth, &TextureHeight, &TextureChannels, 0);
+    if (ImageData != NULL)
+    {
+        stbi__vertical_flip(ImageData, TextureWidth, TextureHeight, TextureChannels);
+
+        GLint InternalFormat = -1;
+        switch (TextureChannels) {
+        case 1: InternalFormat = GL_RED; break;
+        case 3: InternalFormat = GL_RGB; break;
+        case 4: InternalFormat = GL_RGBA; break;
+        default: InternalFormat = GL_RGB; break;
+        }
+
+        unsigned int Texture;
+        glGenTextures(1, &Texture);
+        glBindTexture(GL_TEXTURE_2D, Texture);
+        glTexImage2D(GL_TEXTURE_2D, 0, InternalFormat, TextureWidth, TextureHeight, 0, InternalFormat, GL_UNSIGNED_BYTE, ImageData);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        
+        stbi_image_free(ImageData);
+        return Texture;
+    }
+    else
+    {
+        std::cout << "Textura nije ucitana! Putanja texture: " << filePath << std::endl;
+        stbi_image_free(ImageData);
+        return 0;
+    }
 }
 
 void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn) {

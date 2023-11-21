@@ -5,6 +5,18 @@
 #define AMMUNITION_SIZE 7
 #define CAGE_SIZE 5
 
+void drawPanelSurfaceBackground(unsigned int* VAO, unsigned int basicTextureShader, unsigned int u_texLoc, unsigned texture) {
+    glBindVertexArray(VAO[6]);
+    glUseProgram(basicTextureShader);
+    glUniform1i(u_texLoc, 0);
+
+    glActiveTexture(GL_TEXTURE0); 
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void drawAmmunitionStatus(unsigned int* VAO, unsigned int ammunitionShader, unsigned int basicShader, unsigned int alphaUniform, unsigned int u_Loc, unsigned int u_Col, int bulletsCount) {
     glUseProgram(ammunitionShader);
     glBindVertexArray(VAO[0]);
@@ -12,7 +24,7 @@ void drawAmmunitionStatus(unsigned int* VAO, unsigned int ammunitionShader, unsi
         if (i <= AMMUNITION_SIZE - bulletsCount - 1) {
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-;           glUniform4f(alphaUniform, 0.0, 0.0, 0.0, 0.0);
+;           glUniform4f(alphaUniform, 0.0, 0.0, 0.0, 0.3);
         }
         else {
             glUniform4f(alphaUniform, 1.0, 0.0, 0.0, 0.0);
