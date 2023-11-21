@@ -16,7 +16,7 @@
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
 static unsigned loadImageToTexture(const char* filePath);
-void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn);
+void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX, float* texY, bool* isInside);
 
 int main(void)
 {
@@ -144,6 +144,15 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    unsigned shootingRangeTexture = loadImageToTexture("textures/winxp.jpg");
+    glBindTexture(GL_TEXTURE_2D, shootingRangeTexture);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     //Shaders
     unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
     unsigned int basicShader = createShader("basic.vert", "basic.frag");
@@ -153,6 +162,7 @@ int main(void)
     unsigned int u_colorLocAmm = glGetUniformLocation(ammunitionShader, "u_col");
     unsigned int u_colorLoc = glGetUniformLocation(basicShader, "u_col");
     unsigned int u_basicMoveLoc = glGetUniformLocation(basicShader, "u_move");
+    unsigned int u_basicTexMoveLoc = glGetUniformLocation(basicTextureShader, "u_moveTex");
     unsigned u_TexLoc = glGetUniformLocation(basicTextureShader, "uTex");
     glUniform1i(u_TexLoc, 0);
 
@@ -160,17 +170,25 @@ int main(void)
     //Variables
     int bulletCount = 7;
     bool fireLedOn = true;
+    bool isInside = true;
+    float texX = 0.0;
+    float texY = 0.0;
 
     //Rendering loop
     while (!glfwWindowShouldClose(window))
     {
-        control(window, &bulletCount, &fireLedOn);
+        control(window, &bulletCount, &fireLedOn, &texX, &texY, &isInside);
 
         glClearColor(0.1, 0.3, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
 
         glViewport(0, 0, wWidth, wHeight);
-        drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, metalSurfaceTexture);
+        if (isInside) {
+            drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, metalSurfaceTexture, u_basicTexMoveLoc, 0, 0);
+        }
+        else {
+            drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, shootingRangeTexture, u_basicTexMoveLoc, texX, texY);
+        }
     
         glViewport(0, 0, wWidth / 2, wHeight);
         drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc, bulletCount);
@@ -303,7 +321,7 @@ static unsigned loadImageToTexture(const char* filePath) {
     }
 }
 
-void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn) {
+void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX, float* texY, bool* isInside) {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, GL_TRUE);
     }
@@ -312,4 +330,32 @@ void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn) {
         (*(bulletCount))--;
         *(fireLedOn) = false;
     }
+
+    if (glfwGetKey(window, GLFW_KEY_V) == GLFW_PRESS) {
+        *(isInside) = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS) {
+        *(isInside) = true;
+    }
+
+    //Movement BEGIN
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+        if ((*(texY)) < 0.4)
+            (*(texY)) += 0.01;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+        if((*(texY)) > -0.4)
+            (*(texY)) -= 0.01;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+        (*(texX)) += 0.01;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+        (*(texX)) -= 0.01;
+    }
+    //Movement END
 }
