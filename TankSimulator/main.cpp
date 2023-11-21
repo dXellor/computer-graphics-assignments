@@ -185,17 +185,16 @@ int main(void)
         glViewport(0, 0, wWidth, wHeight);
         if (isInside) {
             drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, metalSurfaceTexture, u_basicTexMoveLoc, 0, 0);
+            glViewport(0, 0, wWidth / 2, wHeight);
+            drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc, bulletCount);
+            drawFireLED(VAO, basicShader, u_basicMoveLoc, u_colorLoc, fireLedOn);
+
+            glViewport(wWidth / 2 + 1, 0, wWidth / 2, wHeight);
+            drawVoltmeter(VAO, basicShader, sizeof(voltmeter_vert), u_basicMoveLoc, u_colorLoc);
         }
         else {
             drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, shootingRangeTexture, u_basicTexMoveLoc, texX, texY);
         }
-    
-        glViewport(0, 0, wWidth / 2, wHeight);
-        drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc, bulletCount);
-        drawFireLED(VAO, basicShader, u_basicMoveLoc, u_colorLoc, fireLedOn);
-
-        glViewport(wWidth / 2 + 1, 0, wWidth / 2, wHeight);
-        drawVoltmeter(VAO, basicShader, sizeof(voltmeter_vert), u_basicMoveLoc, u_colorLoc);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -340,22 +339,24 @@ void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX,
     }
 
     //Movement BEGIN
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        if ((*(texY)) < 0.4)
-            (*(texY)) += 0.01;
-    }
+    if (!(*(isInside))) {
+        if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
+            if ((*(texY)) < 0.4)
+                (*(texY)) += 0.01;
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        if((*(texY)) > -0.4)
-            (*(texY)) -= 0.01;
-    }
+        if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
+            if ((*(texY)) > -0.4)
+                (*(texY)) -= 0.01;
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        (*(texX)) += 0.01;
-    }
+        if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
+            (*(texX)) += 0.01;
+        }
 
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        (*(texX)) -= 0.01;
+        if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
+            (*(texX)) -= 0.01;
+        }
     }
     //Movement END
 }
