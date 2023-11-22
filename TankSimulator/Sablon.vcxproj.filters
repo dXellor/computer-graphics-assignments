@@ -47,6 +47,9 @@
     <None Include="voltmeter_line.frag">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="transparent_texture.frag">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="starting_vertices.h">

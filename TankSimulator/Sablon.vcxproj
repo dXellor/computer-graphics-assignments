@@ -148,6 +148,7 @@
     <None Include="basic.vert" />
     <None Include="basic_texture.frag" />
     <None Include="basic_texture.vert" />
+    <None Include="transparent_texture.frag" />
     <None Include="packages.config" />
     <None Include="voltmeter_line.frag" />
     <None Include="voltmeter_line.vert" />

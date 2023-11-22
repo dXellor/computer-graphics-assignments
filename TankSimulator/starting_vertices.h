@@ -4,6 +4,8 @@
 #define AMMUNITION_SIZE 6
 #define CAGE_SIZE 5
 #define MAX_VOLTAGE 30
+#define TANK_SPEED_C 0.002
+#define BASE_TANK_SPEED 0.001
 #include <math.h>
 
 float panel_surface_background_vert[16] =
@@ -124,7 +126,13 @@ float fire_led_cage[40] = {
 
 float voltmeter_line_vert[4] = {
 	0.0, -0.15,
-	-0.65, 0.02,
+	-0.65, -0.13,
 };
 
+float target_vert[16] = {
+	-1.0, -1.0,  0.0, 0.0,
+	1.0, -1.0,   1.0, 0.0,
+   -1.0, 1.0,    0.0, 1.0,
+	1.0, 1.0,    1.0, 1.0
+};
 

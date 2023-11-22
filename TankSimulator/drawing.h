@@ -71,12 +71,13 @@ void drawVoltmeter(unsigned int* VAO, unsigned int shader, unsigned int lineShad
 
     //Calculate line position by voltage (0 volts -> arrow points left)
     float noise = 0.0;
-    if (voltage > 0 && voltage < MAX_VOLTAGE) {
-        noise = sin(100 * glfwGetTime())/10;
+    float r = 0.5;
+    if (voltage > 0) {
+        noise = sin(100 * glfwGetTime())/5;
     }
 
-    float line_x= 0.6 * cos((3.141592 / 180) * ((MAX_VOLTAGE - voltage + noise) * 180 / CRES));
-    float line_y= 0.6 * sin((3.141592 / 180) * ((MAX_VOLTAGE - voltage + noise) * 180 / CRES));
+    float line_x= r * cos((3.141592 / 180) * ((MAX_VOLTAGE - voltage + noise) * 180 / CRES));
+    float line_y= r * sin((3.141592 / 180) * ((MAX_VOLTAGE - voltage + noise) * 180 / CRES));
     
     glUseProgram(lineShader);
     glUniform2f(u_voltmeterLineLoc, line_x, line_y);

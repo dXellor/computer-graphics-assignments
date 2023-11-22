@@ -30,10 +30,10 @@ int main(void)
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     GLFWwindow* window;
-    unsigned int wWidth = 1280;
-    unsigned int wHeight = 720;
+    unsigned int wWidth = 1920;
+    unsigned int wHeight = 1080;
     const char wTitle[] = "Tank simulator - RA32-2020";
-    window = glfwCreateWindow(wWidth, wHeight, wTitle, NULL, NULL);
+    window = glfwCreateWindow(wWidth, wHeight, wTitle, glfwGetPrimaryMonitor(), NULL);
     if (window == NULL)
     {
         std::cout << "Prozor nije napravljen! :(\n";
@@ -58,6 +58,7 @@ int main(void)
         [5] - voltmeter line
         [6] - background
         [7] - targets
+        [8] - signature
     */
 
     unsigned int VAO[10];
@@ -131,33 +132,29 @@ int main(void)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
 
     //Targets
-    stride = 2 * sizeof(float);
-    //float target_vert[(CRES * 2 + 4) * TARGETS_NUM];
-    //float rt = 0.2;
-    float target_vert[6];
-    for (int i = 0; i < TARGETS_NUM; i++) {
-        target_vert[i * 2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-        target_vert[i * 2 + 1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-    
-        /*for (int j = 0; j <= CRES; j++)
-        {
-            int offset = (CRES * 2 + 4) * i;
-            target_vert[offset + 2 + 2 * j] = rt * cos((3.141592 / 180) * (j * 360 / CRES));
-            target_vert[offset + 2 + 2 * j + 1] = rt * sin((3.141592 / 180) * (j * 360 / CRES));
-        }*/
-    }
     glBindVertexArray(VAO[7]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[7]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(target_vert), target_vert, GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
+
+    //Signature
+    glBindVertexArray(VAO[8]);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO[8]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(target_vert), target_vert, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, stride, (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
 
     //Detach
     glBindVertexArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     //Textures
-    unsigned metalSurfaceTexture = loadImageToTexture("textures/internal-board-surface.jpg");
+    unsigned metalSurfaceTexture = loadImageToTexture("textures/internal-board-surface.png");
     glBindTexture(GL_TEXTURE_2D, metalSurfaceTexture); 
     glGenerateMipmap(GL_TEXTURE_2D);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -175,20 +172,51 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
 
+    unsigned outsideVisionTexture = loadImageToTexture("textures/outside-vision.png");
+    glBindTexture(GL_TEXTURE_2D, outsideVisionTexture);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    unsigned targetTexture = loadImageToTexture("textures/target.png");
+    glBindTexture(GL_TEXTURE_2D, targetTexture);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    unsigned signatureTexture = loadImageToTexture("textures/signature.png");
+    glBindTexture(GL_TEXTURE_2D, signatureTexture);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
     //Shaders
     unsigned int ammunitionShader = createShader("basic.vert", "ammunition.frag");
     unsigned int basicShader = createShader("basic.vert", "basic.frag");
     unsigned int basicTextureShader = createShader("basic_texture.vert", "basic_texture.frag");
     unsigned int voltmeterLineShader = createShader("voltmeter_line.vert", "voltmeter_line.frag");
+    unsigned int transparentTextureShader = createShader("basic_texture.vert", "transparent_texture.frag");
 
     //Uniforms
     unsigned int u_colorLocAmm = glGetUniformLocation(ammunitionShader, "u_col");
     unsigned int u_colorLoc = glGetUniformLocation(basicShader, "u_col");
     unsigned int u_basicMoveLoc = glGetUniformLocation(basicShader, "u_move");
     unsigned int u_basicTexMoveLoc = glGetUniformLocation(basicTextureShader, "u_moveTex");
+    unsigned int u_transparentTexMoveLoc = glGetUniformLocation(transparentTextureShader, "u_moveTex");
     unsigned int u_voltmeterLineMoveLoc = glGetUniformLocation(voltmeterLineShader, "u_moveVoltmeterLine");
     unsigned u_TexLoc = glGetUniformLocation(basicTextureShader, "uTex");
+    unsigned u_transparentTexLoc = glGetUniformLocation(transparentTextureShader, "uTex");
     glUniform1i(u_TexLoc, 0);
+    glUniform1i(u_transparentTexLoc, 0);
 
     //Variables
     int bulletCount = AMMUNITION_SIZE;
@@ -212,18 +240,21 @@ int main(void)
 
         glViewport(0, 0, wWidth, wHeight);
         if (isInside) {
-            drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, metalSurfaceTexture, u_basicTexMoveLoc, 0, 0);
+            drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, metalSurfaceTexture, u_basicTexMoveLoc, 0.0, 0.0);
             glViewport(0, 0, wWidth / 2, wHeight);
             drawAmmunitionStatus(VAO, ammunitionShader, basicShader, u_colorLocAmm, u_basicMoveLoc, u_colorLoc, bulletCount);
             drawFireLED(VAO, basicShader, u_basicMoveLoc, u_colorLoc, fireLedOn);
 
-            glViewport(wWidth / 2 + 1, 0, wWidth / 2, wHeight);
+            glViewport(wWidth / 2, 0, wWidth / 2, wHeight);
             drawVoltmeter(VAO, basicShader, voltmeterLineShader, sizeof(voltmeter_vert), u_basicMoveLoc, u_colorLoc, u_voltmeterLineMoveLoc, hydraulicsOn, voltage);
         }
         else {
             drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, shootingRangeTexture, u_basicTexMoveLoc, texX, texY);
-            drawTargets(VAO, basicShader, sizeof(target_vert), u_basicMoveLoc, u_colorLoc, texX, texY);
+            glViewport(0, 0, wWidth, wHeight);
+            drawPanelSurfaceBackground(VAO, transparentTextureShader, u_transparentTexLoc, outsideVisionTexture, u_transparentTexMoveLoc, 0.0, 0.0);
         }
+        glViewport(wWidth-700, wHeight-100, 700, 100);
+        drawPanelSurfaceBackground(VAO, transparentTextureShader, u_transparentTexLoc, signatureTexture, u_transparentTexMoveLoc, 0.0, 0.0);
 
         glBindVertexArray(0);
         glUseProgram(0);
@@ -383,7 +414,7 @@ void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX,
     }
 
     if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS) {
-        if (*hydraulicsTimeStamp == 0 || ((glfwGetTime() - (*hydraulicsTimeStamp)) > 5)) {
+        if (*hydraulicsTimeStamp == 0 || ((glfwGetTime() - (*hydraulicsTimeStamp)) > 3)) {
             *hydraulicsOn = !(*hydraulicsOn);
             *hydraulicsTimeStamp = glfwGetTime();
         } 
@@ -412,22 +443,30 @@ void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX,
 
     //Movement START
     if (!(*isInside)) {
+        float speed;
+        if (!(*hydraulicsOn)) {
+            speed = BASE_TANK_SPEED / 10;
+        }
+        else {
+            speed = BASE_TANK_SPEED + ((*voltage) / MAX_VOLTAGE) * TANK_SPEED_C;
+        }
+
         if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-            if ((*texY) < 0.4)
-                (*texY) += 0.01;
+            if ((*texY) < 0.27)
+                (*texY) += speed;
         }
 
         if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-            if ((*texY) > -0.4)
-                (*texY) -= 0.01;
+            if ((*texY) > -0.27)
+                (*texY) -= speed;
         }
 
         if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-            (*texX) += 0.01;
+            (*texX) += speed;
         }
 
         if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-            (*texX) -= 0.01;
+            (*texX) -= speed;
         }
     }
     //Movement END
