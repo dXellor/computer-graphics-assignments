@@ -14,7 +14,8 @@
 unsigned int compileShader(GLenum type, const char* source);
 unsigned int createShader(const char* vsSource, const char* fsSource);
 static unsigned loadImageToTexture(const char* filePath);
-void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX, float* texY, bool* isInside, double* fireTimeStamp, bool* hydraulicsOn, double* hydraulicsTimeStamp, float* voltage);
+void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX, float* texY, bool* isInside, double* fireTimeStamp,
+    bool* hydraulicsOn, double* hydraulicsTimeStamp, float* voltage, float* targets_vert, bool* targets_hit);
 
 int main(void)
 {
@@ -230,7 +231,7 @@ int main(void)
     glfwSetTime(0);
     while (!glfwWindowShouldClose(window))
     {
-        control(window, &bulletCount, &fireLedOn, &texX, &texY, &isInside, &fireTimeStamp, &hydraulicsOn, &hydraulicsSwitchTimestamp, &voltage);
+        control(window, &bulletCount, &fireLedOn, &texX, &texY, &isInside, &fireTimeStamp, &hydraulicsOn, &hydraulicsSwitchTimestamp, &voltage, target_positions, target_hit);
 
         glClearColor(0.1, 0.3, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -380,7 +381,8 @@ static unsigned loadImageToTexture(const char* filePath) {
     }
 }
 
-void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX, float* texY, bool* isInside, double* fireTimeStamp, bool* hydraulicsOn, double* hydraulicsTimeStamp, float* voltage) {
+void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX, float* texY, bool* isInside, double* fireTimeStamp, 
+    bool* hydraulicsOn, double* hydraulicsTimeStamp, float* voltage, float* targets_vert, bool* targets_hit) {
     
     //FireLED check
     if (!(*fireLedOn) && (glfwGetTime() - (*fireTimeStamp)) > 7.5) {
@@ -402,6 +404,7 @@ void control(GLFWwindow* window, int* bulletCount, bool* fireLedOn, float* texX,
             (*bulletCount)--;
             *(fireLedOn) = false;
             *fireTimeStamp = glfwGetTime();
+            scanForHit(targets_hit, targets_vert, *texX, *texY);
         }
     }
 

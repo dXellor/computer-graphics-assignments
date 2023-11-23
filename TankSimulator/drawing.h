@@ -101,3 +101,19 @@ void drawTargets(unsigned int* VAO, unsigned int shader, unsigned int targetText
     }
     glBindTexture(GL_TEXTURE_2D, 0);
 }
+
+void scanForHit(bool* targets_hit, float* targets_vert, float targetX, float targetY) {
+    for (int i = TARGETS_NUM - 1; i >= 0; i--) {
+        if (!targets_hit[i]) {
+            float centerx = targets_vert[i * 2] + convertToGLRange(calculateVerticalToHorizontalRatio(TARGET_RADIUS_PX), false) - targetX;
+            float centery = targets_vert[i * 2 + 1] + convertToGLRange(TARGET_RADIUS_PX, true) - targetY;
+            float calc = sqrt(abs((pow(centerx, 2) - pow(centery, 2))));
+
+            if (calc < 0.5) {
+                std::cout << "HIT" << std::endl;
+                targets_hit[i] = true;
+                break;
+            }
+        }
+    }
+}
