@@ -87,15 +87,17 @@ void drawVoltmeter(unsigned int* VAO, unsigned int shader, unsigned int lineShad
     glLineWidth(1);
 }
 
-void drawTargets(unsigned int* VAO, unsigned int shader, int arraySize, unsigned int u_Loc, unsigned int u_colorLoc, float x, float y) {
+void drawTargets(unsigned int* VAO, unsigned int shader, unsigned int targetTexture, unsigned int u_texLoc, unsigned int u_targetMoveLoc,
+    float x, float y, float* positions, bool* target_hit) {
     glUseProgram(shader);
-    glUniform4f(u_colorLoc, 1.0, 0.0, 0.0, 1.0);
-    glUniform2f(u_Loc, x, y);
     glBindVertexArray(VAO[7]);
-    glEnable(GL_PROGRAM_POINT_SIZE);
-    glPointSize(10);
-    for (int i = 3; i < TARGETS_NUM; i++) {
-        glDrawArrays(GL_POINTS, i * 2, 1);
+    glActiveTexture(GL_TEXTURE0);
+    glUniform1i(u_texLoc, 0);
+    glUniform2f(u_targetMoveLoc, -x, -y);
+    glBindTexture(GL_TEXTURE_2D, targetTexture);
+    for (int i = 0; i < TARGETS_NUM; i++) {
+        if (!target_hit[i])
+            glDrawArrays(GL_TRIANGLE_STRIP, i * 4, 4);
     }
-    glPointSize(1);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }

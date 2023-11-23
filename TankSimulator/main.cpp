@@ -97,17 +97,7 @@ int main(void)
 
     //Voltmeter
     float voltmeter_vert[CRES * 2 + 4];
-    float r = 0.7;
-
-    voltmeter_vert[0] = 0;
-    voltmeter_vert[1] = 0;
-    int i;
-    for (i = 0; i <= CRES; i++)
-    {
-
-        voltmeter_vert[2 + 2 * i] = r * cos((3.141592 / 180) * (i * 180 / CRES));
-        voltmeter_vert[2 + 2 * i + 1] = r * sin((3.141592 / 180) * (i * 180 / CRES));
-    }
+    generateVoltmeterVert(voltmeter_vert);
     glBindVertexArray(VAO[4]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[4]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(voltmeter_vert), voltmeter_vert, GL_STATIC_DRAW);
@@ -132,6 +122,10 @@ int main(void)
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, stride, (void*)(2 * sizeof(float)));
 
     //Targets
+    float target_positions[TARGETS_NUM * 2];
+    float target_vert[TARGETS_NUM * 16];
+    generateRandomTargetPositions(target_positions);
+    generateTargetVert(target_positions, target_vert);
     glBindVertexArray(VAO[7]);
     glBindBuffer(GL_ARRAY_BUFFER, VBO[7]);
     glBufferData(GL_ARRAY_BUFFER, sizeof(target_vert), target_vert, GL_STATIC_DRAW);
@@ -205,6 +199,7 @@ int main(void)
     unsigned int basicTextureShader = createShader("basic_texture.vert", "basic_texture.frag");
     unsigned int voltmeterLineShader = createShader("voltmeter_line.vert", "voltmeter_line.frag");
     unsigned int transparentTextureShader = createShader("basic_texture.vert", "transparent_texture.frag");
+    unsigned int targetShader = createShader("target.vert", "target.frag");
 
     //Uniforms
     unsigned int u_colorLocAmm = glGetUniformLocation(ammunitionShader, "u_col");
@@ -217,6 +212,8 @@ int main(void)
     unsigned u_transparentTexLoc = glGetUniformLocation(transparentTextureShader, "uTex");
     glUniform1i(u_TexLoc, 0);
     glUniform1i(u_transparentTexLoc, 0);
+
+    unsigned int u_moveTarget = glGetUniformLocation(targetShader, "u_moveTarget");
 
     //Variables
     int bulletCount = AMMUNITION_SIZE;
@@ -251,6 +248,7 @@ int main(void)
         else {
             drawPanelSurfaceBackground(VAO, basicTextureShader, u_TexLoc, shootingRangeTexture, u_basicTexMoveLoc, texX, texY);
             glViewport(0, 0, wWidth, wHeight);
+            drawTargets(VAO, targetShader, targetTexture, u_TexLoc, u_moveTarget, texX, texY, target_positions, target_hit);
             drawPanelSurfaceBackground(VAO, transparentTextureShader, u_transparentTexLoc, outsideVisionTexture, u_transparentTexMoveLoc, 0.0, 0.0);
         }
         glViewport(wWidth-700, wHeight-100, 700, 100);
