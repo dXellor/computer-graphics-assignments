@@ -5,9 +5,12 @@
 
 void drawPanelSurfaceBackground(unsigned int* VAO, unsigned int basicTextureShader, unsigned int u_texLoc, unsigned texture, unsigned int u_texMoveLoc, float x, float y) {
     glBindVertexArray(VAO[6]);
+    
     glUseProgram(basicTextureShader);
+    
     glUniform1i(u_texLoc, 0);
     glUniform2f(u_texMoveLoc, x, y);
+    
     glActiveTexture(GL_TEXTURE0); 
     glBindTexture(GL_TEXTURE_2D, texture);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -105,11 +108,12 @@ void drawTargets(unsigned int* VAO, unsigned int shader, unsigned int targetText
 void scanForHit(bool* targets_hit, float* targets_vert, float targetX, float targetY) {
     for (int i = TARGETS_NUM - 1; i >= 0; i--) {
         if (!targets_hit[i]) {
-            float centerx = targets_vert[i * 2] + convertToGLRange(calculateVerticalToHorizontalRatio(TARGET_RADIUS_PX), false) - targetX;
-            float centery = targets_vert[i * 2 + 1] + convertToGLRange(TARGET_RADIUS_PX, true) - targetY;
-            float calc = sqrt(abs((pow(centerx, 2) - pow(centery, 2))));
-
-            if (calc < 0.5) {
+            float centerx = targets_vert[i * 2] + abs(convertToGLRange(calculateVerticalToHorizontalRatio(TARGET_RADIUS_PX), false)) - targetX;
+            float centery = targets_vert[i * 2 + 1] + abs(convertToGLRange(TARGET_RADIUS_PX, true)) - targetY;
+            float calc = sqrt(pow(centerx, 2) + pow(centery, 2));
+            std::cout << "tx: " << targetX << " ty : " << targetY << std::endl;
+            std::cout << "cx: " << centerx << " cy: " << centery << std::endl;
+            if (calc < 0.3) {
                 std::cout << "HIT" << std::endl;
                 targets_hit[i] = true;
                 break;
